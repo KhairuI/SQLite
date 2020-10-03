@@ -2,6 +2,7 @@ package com.example.classsqlite;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             ""+playerName+" VARCHAR(100), "+playerType+" VARCHAR(100), "+playerCode+" INTEGER); ";
 
     public static final String upgradeTable=" DROP TABLE IF EXISTS "+tableName;
+    public static final String displayTable=" SELECT * FROM "+tableName;
     private Context context;
 
     public DataBaseHelper(Context context) {
@@ -61,6 +63,18 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         contentValues.put(playerCode,code);
         long value= sqLiteDatabase.insert(tableName,null,contentValues);
 
+        return value;
+    }
+
+    public Cursor show(){
+        SQLiteDatabase sqLiteDatabase= this.getWritableDatabase();
+        Cursor cursor= sqLiteDatabase.rawQuery(displayTable,null);
+        return cursor;
+    }
+
+    public int delete(String id){
+        SQLiteDatabase sqLiteDatabase= this.getWritableDatabase();
+        int value= sqLiteDatabase.delete(tableName,playerId+" = ?",new String[]{id});
         return value;
     }
 
