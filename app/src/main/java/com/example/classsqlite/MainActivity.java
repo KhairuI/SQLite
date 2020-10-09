@@ -2,6 +2,7 @@ package com.example.classsqlite;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -10,6 +11,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -52,29 +56,26 @@ public class MainActivity extends AppCompatActivity {
         adapter.setOnItemListener(new MyAdapter.OnItemClick() {
             @Override
             public void onItemClick(int position) {
-                String id= "Index: "+playerList.get(position).getId();
-                String name= "Name: "+playerList.get(position).getName();
-                String code= "Code: "+playerList.get(position).getCode();
-                String type= "Type: "+playerList.get(position).getType();
-                String details= id+"\n"+name+"\n"+code+"\n"+type;
-                showDetails(details);
+
+                Model details= playerList.get(position);
+                Intent intent= new Intent(MainActivity.this,DetailsActivity.class);
+                intent.putExtra("details",details);
+                startActivity(intent);
+
             }
 
             @Override
             public void onLongItemClick(final int position) {
                 AlertDialog.Builder builder= new AlertDialog.Builder(MainActivity.this);
-                String[] option={"Delete","Update"};
-                builder.setItems(option, new DialogInterface.OnClickListener() {
+                builder.setTitle("Delete").setMessage("Do you want to delete ?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteData(position);
+                    }
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        if(which==0)
-                        {
-                            deleteData(position);
-                        }
-                        if(which==1){
-
-                        }
                     }
                 }).create().show();
 
@@ -95,17 +96,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-    }
-
-    private void showDetails(String details) {
-        AlertDialog.Builder builder= new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Details").setMessage(details).setCancelable(true)
-                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                }).create().show();
     }
 
 
@@ -132,5 +122,30 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater= getMenuInflater();
+        menuInflater.inflate(R.menu.menu_item,menu);
+
+        MenuItem menuItem= menu.findItem(R.id.searchId);
+        SearchView searchView= (SearchView) menuItem.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String st) {
+                adapter.getFilter().filter(st);
+                return false;
+            }
+        });
+
+
+        return true;
     }
 }

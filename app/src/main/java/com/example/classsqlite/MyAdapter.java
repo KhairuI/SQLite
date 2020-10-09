@@ -3,20 +3,25 @@ package com.example.classsqlite;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
     private List<Model> playerList;
+    private List<Model> searchList;
     private OnItemClick onItemClick;
 
     public void getPlayerList(List<Model> playerList){
         this.playerList= playerList;
+        searchList= new ArrayList<>(playerList);
     }
 
     @NonNull
@@ -39,6 +44,44 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public int getItemCount() {
         return playerList.size();
     }
+
+    public Filter getFilter(){
+        return playerFilter;
+    }
+
+
+    private Filter playerFilter= new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence ch) {
+            List<Model> filterUser= new ArrayList<>();
+            if(ch ==null || ch.length()==0){
+                filterUser.addAll(searchList);
+            }
+            else {
+                String filterPattern= ch.toString().toLowerCase().trim();
+                for (Model model:searchList){
+                    if(model.getCode().toLowerCase().contains(ch) || model.getName().toLowerCase().contains(ch)){
+                        filterUser.add(model);
+                    }
+                }
+
+            }
+
+            FilterResults filterResults= new FilterResults();
+            filterResults.values= filterUser;
+            return filterResults;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            playerList.clear();
+            playerList.addAll((List<Model>)results.values);
+            notifyDataSetChanged();
+
+        }
+    };
+
+
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
 

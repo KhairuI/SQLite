@@ -1,6 +1,8 @@
 package com.example.classsqlite;
 
-public class Model {
+import java.io.Serializable;
+
+public class Model implements Serializable{
 
     private String id;
     private String name;
